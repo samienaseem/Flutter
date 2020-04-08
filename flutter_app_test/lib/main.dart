@@ -14,27 +14,93 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
-  bool _tryAgain;
-  TextEditingController pass=TextEditingController();
+  /*String _haveStarted3Times = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _incrementStartup();
+  }
+
+  /// Will get the startupnumber from shared_preferences
+  /// will return 0 if null
+  Future<int> _getIntFromSharedPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    final startupNumber = prefs.getInt('startupNumber');
+    if (startupNumber == null) {
+      return 0;
+    }
+    return startupNumber;
+  }
+
+  /// Reset the counter in shared_preferences to 0
+  Future<void> _resetCounter() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('startupNumber', 0);
+  }
+
+  /// Will Increment the startup number and store it then
+  /// use setState to display in the UI
+  Future<void> _incrementStartup() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    int lastStartupNumber = await _getIntFromSharedPref();
+    int currentStartupNumber = ++lastStartupNumber;
+
+    await prefs.setInt('startupNumber', currentStartupNumber);
+
+    if (currentStartupNumber == 3) {
+      setState(() => _haveStarted3Times = '$currentStartupNumber Times Completed');
+
+      // Reset only if you want to
+      await _resetCounter();
+    } else {
+      setState(() => _haveStarted3Times = '$currentStartupNumber Times started the app');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Text(
+          _haveStarted3Times,
+          style: TextStyle(fontSize: 32),
+        ),
+      ),
+    );
+  }*/
+  bool _tryAgain=true;
+  TextEditingController pass = TextEditingController();
   SharedPreferences sh;
 
   @override
   void initState() {
-    _checkWifi();
     super.initState();
-
+    _checkWifi();
   }
 
-  _checkWifi() async {
-    var sh= await SharedPreferences.getInstance();
+  Future <void> _checkWifi() async {
+    final sh = await SharedPreferences.getInstance();
+    String flag=await _getBoolformshared();
+
+    await sh.setString('counter', flag);
+
+    if(flag==""){
+      Future.delayed(Duration.zero,()=> _showAlert(context));
+    }
+
+
     //sh.setBool("counter", _tryAgain);
-    setState(() {
-      bool val=sh.getBool('counter');
-      this.sh=sh;
-      if (val==null) {
-        Future.delayed(Duration.zero,()=>_showAlert(context));
-      }
-    });
+
+  }
+  Future<String> _getBoolformshared()async {
+    final sh=await SharedPreferences.getInstance();
+    final str=sh.getString("counter");
+    if(str==null){
+      return "";
+    }
+    return str;
 
 
 
@@ -78,35 +144,30 @@ class _MyPageState extends State<MyPage> {
     );
 
     Alert(
-      context: context,
-      style: alertStyle,
-      title: "Rflutter example",
-       content: Form(
-         child: Column(
-           children: <Widget>[
-             TextFormField(
-               decoration: InputDecoration(
-                 labelText: "Passwords",
-               ),
-             ),
+        context: context,
+        style: alertStyle,
+        title: "Rflutter example",
+        content: Form(
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: "Passwords",
+                ),
+              ),
 
-           ],
-         ),
-       ),
-       buttons: [
-         DialogButton(
-           child: Text("Save"),
-           onPressed: (){
-             setState(() {
-               _tryAgain=false;
-               sh.setBool('counter', _tryAgain);
-               bool v=sh.getBool("counter");
-             });
-
-             debugPrint("$v");
-             Navigator.pop(context);
-           },
-         )
+            ],
+          ),
+        ),
+        buttons: [
+          DialogButton(
+            child: Text("Save"),
+            onPressed: ()async {
+              final sh=await SharedPreferences.getInstance();
+              await sh.setString('counter', '1213134');
+              Navigator.pop(context);
+            },
+          )
         ]
     ).show();
     /*showDialog(
@@ -139,5 +200,8 @@ class _MyPageState extends State<MyPage> {
           ],
         )
     );*/
+
   }
+
+
 }
